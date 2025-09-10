@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Callout, Marker } from 'react-native-maps';
+import { StyleSheet } from 'react-native';
 
 import BaseMapComponent, { ModeButton, Trajectory } from './BaseMap';
 
@@ -17,30 +16,6 @@ export default function PurposeMapComponent({
   onPurposeChange,
   children
 }: PurposeMapComponentProps) {
-  // Custom callout rendering for purpose markers
-  const renderPurposeCallout = (trajectory: Trajectory) => (
-    <Callout tooltip>
-      <View style={styles.callout}>
-        <Text style={styles.calloutTitle}>{trajectory.mode}</Text>
-        {trajectory.date && <Text style={styles.calloutText}>Date: {trajectory.date}</Text>}
-        {trajectory.time && <Text style={styles.calloutText}>Time: {trajectory.time}</Text>}
-      </View>
-    </Callout>
-  );
-  
-  // Custom marker rendering for purpose markers
-  const renderPurposeMarker = (trajectory: Trajectory, isStart: boolean) => (
-    <Marker
-      key={`point-${trajectory.id}`}
-      coordinate={trajectory.coordinates[0]}
-      title={trajectory.mode}
-      pinColor={trajectory.color}
-      onPress={() => {}}
-    >
-      {renderPurposeCallout(trajectory)}
-    </Marker>
-  );
-
   return (
     <BaseMapComponent 
       trajectories={purposeMarkers}
@@ -48,7 +23,6 @@ export default function PurposeMapComponent({
       onModeChange={onPurposeChange}
       showLines={false}
       renderMarker={renderPurposeMarker}
-      renderCallout={renderPurposeCallout}
       children={children}
     />
   );

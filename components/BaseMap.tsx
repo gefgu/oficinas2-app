@@ -33,7 +33,6 @@ export interface BaseMapComponentProps {
   showLines?: boolean;
   children?: React.ReactNode;
   renderMarker?: (trajectory: Trajectory, isStart: boolean) => React.ReactNode;
-  renderCallout?: (trajectory: Trajectory) => React.ReactNode;
 }
 
 export default function BaseMapComponent({ 
@@ -42,8 +41,7 @@ export default function BaseMapComponent({
   onModeChange,
   showLines = true,
   children,
-  renderMarker,
-  renderCallout
+  renderMarker
 }: BaseMapComponentProps) {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
@@ -93,16 +91,23 @@ export default function BaseMapComponent({
   };
 
   // Default marker rendering
-  const defaultRenderMarker = (trajectory: Trajectory, isStart: boolean) => (
-    <Marker
-      key={`${isStart ? 'start' : 'end'}-${trajectory.id}`}
-      coordinate={isStart ? trajectory.coordinates[0] : trajectory.coordinates[trajectory.coordinates.length - 1]}
-      title={`${isStart ? (showLines ? 'Start: ' : '') : 'End: '}${trajectory.mode}`}
-      pinColor={isStart ? trajectory.color : 'black'}
-      onPress={() => handleItemPress(trajectory.id)}
-    >
-      {isStart && !showLines && trajectory.date && (
-        renderCallout ? renderCallout(trajectory) : (
+  const defaultRenderMarker = (trajectory: Trajectory, isStart: boolean) => {
+    // Only render end markers if showLines is true
+    if (!isStart && !showLines) return null;
+    
+    const coordinate = isStart 
+      ? trajectory.coordinates[0] 
+      : trajectory.coordinates[trajectory.coordinates.length - 1];
+      
+    return (
+      <Marker
+        key={`${isStart ? 'start' : 'end'}-${trajectory.id}`}
+        coordinate={coordinate}
+        title={`${isStart ? (showLines ? 'Start: ' : '') : 'End: '}${trajectory.mode}`}
+        pinColor={isStart ? trajectory.color : 'black'}
+        onPress={() => handleItemPress(trajectory.id)}
+      >
+        {isStart && !showLines && (
           <Callout tooltip>
             <View style={styles.callout}>
               <Text style={styles.calloutTitle}>{trajectory.mode}</Text>
@@ -110,10 +115,10 @@ export default function BaseMapComponent({
               {trajectory.time && <Text style={styles.calloutText}>Time: {trajectory.time}</Text>}
             </View>
           </Callout>
-        )
-      )}
-    </Marker>
-  );
+        )}
+      </Marker>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -134,21 +139,23 @@ export default function BaseMapComponent({
           />
         ))}
 
-        {/* Always render start points as markers */}
+        {/* Render markers */}
         {trajectories.map((trajectory) => (
           trajectory.coordinates.length > 0 && (
-            renderMarker 
-              ? renderMarker(trajectory, true) 
-              : defaultRenderMarker(trajectory, true)
-          )
-        ))}
-
-        {/* Render end points as markers only if showing lines (transport mode) */}
-        {showLines && trajectories.map((trajectory) => (
-          trajectory.coordinates.length > 0 && (
-            renderMarker 
-              ? renderMarker(trajectory, false) 
-              : defaultRenderMarker(trajectory, false)
+            <>
+              {/* Start marker */}
+              {renderMarker 
+                ? renderMarker(trajectory, true) 
+                : defaultRenderMarker(trajectory, true)
+              }
+              
+              {/* End marker (only for transport mode) */}
+              {showLines && (
+                renderMarker 
+                  ? renderMarker(trajectory, false) 
+                  : defaultRenderMarker(trajectory, false)
+              )}
+            </>
           )
         ))}
 
@@ -239,7 +246,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 75,
     width: '100%',
-    alignSelf: 'center',
+    alignItems: 'center',
   },
   callout: {
     width: 160,
