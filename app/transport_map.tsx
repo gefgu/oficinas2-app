@@ -1,15 +1,16 @@
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
-import MapComponent, { Trajectory } from '@/components/MapComponent';
+import { Trajectory } from '@/components/BaseMap';
 import { ThemedText } from '@/components/ThemedText';
+import TransportMapComponent from '@/components/TransportMap';
 import { sampleTrajectory, transportModes } from '@/data/transport_sample';
-import { useState } from 'react';
 
-export default function TransportMap() {
+export default function TransportMapScreen() {
   const router = useRouter();
 
-   // State for trajectories
+  // State for trajectories
   const [trajectories, setTrajectories] = useState<Trajectory[]>(sampleTrajectory);
 
   // Handle trajectory mode change
@@ -25,10 +26,10 @@ export default function TransportMap() {
 
   return (
     <>
-      <MapComponent 
+      <TransportMapComponent 
         trajectories={trajectories} 
         transportModes={transportModes}
-        onTrajectoryModeChange={handleTrajectoryModeChange}
+        onModeChange={handleTrajectoryModeChange}
       >
         <TouchableOpacity 
           style={styles.button}
@@ -36,7 +37,7 @@ export default function TransportMap() {
         >
           <ThemedText style={styles.buttonText}>Continue</ThemedText>
         </TouchableOpacity>
-      </MapComponent>
+      </TransportMapComponent>
     </>
   );
 }
@@ -44,11 +45,9 @@ export default function TransportMap() {
 const styles = StyleSheet.create({
   button: {
     backgroundColor: '#0a7ea4',
-    width: "30%",
-    textAlign: 'center',
-    marginHorizontal: "auto",
-    height: 60,
-    borderRadius: 30,
+    width: 120,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
@@ -59,9 +58,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
-    width: '100%',
-    textAlign: 'center',
   },
 });
