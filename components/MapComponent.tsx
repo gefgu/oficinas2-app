@@ -56,7 +56,12 @@ export default function MapComponent({
     if (selectedMode && trajectoryId !== selectedTrajectory) {
       const selectedModeButton = transportModes.find(mode => mode.id === selectedMode);
       if (selectedModeButton && onTrajectoryModeChange) {
+        // Apply the mode change
         onTrajectoryModeChange(trajectoryId, selectedModeButton.mode, selectedModeButton.color);
+        
+        // Reset both selections after changing the trajectory mode
+        setSelectedTrajectory(null);
+        setSelectedMode(null);
       }
     }
   };
@@ -69,7 +74,12 @@ export default function MapComponent({
     if (selectedTrajectory && modeId !== selectedMode) {
       const selectedModeButton = transportModes.find(mode => mode.id === modeId);
       if (selectedModeButton && onTrajectoryModeChange) {
+        // Apply the mode change
         onTrajectoryModeChange(selectedTrajectory, selectedModeButton.mode, selectedModeButton.color);
+        
+        // Reset both selections after changing the trajectory mode
+        setSelectedTrajectory(null);
+        setSelectedMode(null);
       }
     }
   };
@@ -87,7 +97,7 @@ export default function MapComponent({
             key={trajectory.id}
             coordinates={trajectory.coordinates}
             strokeColor={trajectory.color}
-            strokeWidth={selectedTrajectory === trajectory.id ? 6 : 4}
+            strokeWidth={selectedTrajectory === trajectory.id ? 10 : 4}
             onPress={() => handleTrajectoryPress(trajectory.id)}
             tappable={true}
           />
@@ -184,7 +194,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   selectedModeButton: {
-    borderWidth: 3,
+    borderWidth: 10,
     borderColor: 'white',
   },
   modeIcon: {
