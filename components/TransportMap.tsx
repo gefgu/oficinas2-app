@@ -31,7 +31,7 @@ interface MapComponentProps {
   children?: React.ReactNode;
 }
 
-export default function MapComponent({ 
+export default function TransportMap({ 
   trajectories = [], 
   transportModes = [],
   onTrajectoryModeChange,

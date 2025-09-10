@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
-import MapComponent, { Trajectory } from '@/components/MapComponent';
 import { ThemedText } from '@/components/ThemedText';
+import TransportMap, { Trajectory } from '@/components/TransportMap';
 import { sampleTrajectory, transportModes } from '@/data/transport_sample';
 import { useState } from 'react';
 
-export default function TransportMap() {
+export default function TransportMapScreen() {
   const router = useRouter();
 
    // State for trajectories
@@ -25,7 +25,7 @@ export default function TransportMap() {
 
   return (
     <>
-      <MapComponent 
+      <TransportMap 
         trajectories={trajectories} 
         transportModes={transportModes}
         onTrajectoryModeChange={handleTrajectoryModeChange}
@@ -36,7 +36,7 @@ export default function TransportMap() {
         >
           <ThemedText style={styles.buttonText}>Continue</ThemedText>
         </TouchableOpacity>
-      </MapComponent>
+      </TransportMap>
     </>
   );
 }
