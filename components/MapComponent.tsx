@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 // Define the coordinate type
@@ -16,18 +16,62 @@ export interface Trajectory {
   coordinates: Coordinate[];
 }
 
+// Define transport mode button type
+export interface TransportModeButton {
+  id: string;
+  mode: string;
+  iconPath: any; // Path to the icon image
+  color: string;
+}
+
 interface MapComponentProps {
   trajectories?: Trajectory[];
+  transportModes?: TransportModeButton[];
+  onTrajectoryModeChange?: (trajectoryId: string, newMode: string, newColor: string) => void;
   children?: React.ReactNode;
 }
 
-export default function MapComponent({ trajectories = [], children }: MapComponentProps) {
+export default function MapComponent({ 
+  trajectories = [], 
+  transportModes = [],
+  onTrajectoryModeChange,
+  children 
+}: MapComponentProps) {
+  const [selectedTrajectory, setSelectedTrajectory] = useState<string | null>(null);
+  const [selectedMode, setSelectedMode] = useState<string | null>(null);
+  
   // Curitiba coordinates
   const curitibaRegion = {
     latitude: -25.4290,
     longitude: -49.2671,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
+  };
+
+  // Handle trajectory selection
+  const handleTrajectoryPress = (trajectoryId: string) => {
+    setSelectedTrajectory(trajectoryId === selectedTrajectory ? null : trajectoryId);
+    
+    // If both trajectory and mode are selected, change the mode
+    if (selectedMode && trajectoryId !== selectedTrajectory) {
+      const selectedModeButton = transportModes.find(mode => mode.id === selectedMode);
+      if (selectedModeButton && onTrajectoryModeChange) {
+        onTrajectoryModeChange(trajectoryId, selectedModeButton.mode, selectedModeButton.color);
+      }
+    }
+  };
+  
+  // Handle mode button press
+  const handleModePress = (modeId: string) => {
+    setSelectedMode(modeId === selectedMode ? null : modeId);
+    
+    // If both trajectory and mode are selected, change the mode
+    if (selectedTrajectory && modeId !== selectedMode) {
+      const selectedModeButton = transportModes.find(mode => mode.id === modeId);
+      if (selectedModeButton && onTrajectoryModeChange) {
+        onTrajectoryModeChange(selectedTrajectory, selectedModeButton.mode, selectedModeButton.color);
+      }
+    }
   };
 
   return (
@@ -43,7 +87,9 @@ export default function MapComponent({ trajectories = [], children }: MapCompone
             key={trajectory.id}
             coordinates={trajectory.coordinates}
             strokeColor={trajectory.color}
-            strokeWidth={4}
+            strokeWidth={selectedTrajectory === trajectory.id ? 6 : 4}
+            onPress={() => handleTrajectoryPress(trajectory.id)}
+            tappable={true}
           />
         ))}
 
@@ -55,6 +101,7 @@ export default function MapComponent({ trajectories = [], children }: MapCompone
               coordinate={trajectory.coordinates[0]}
               title={`Start: ${trajectory.mode}`}
               pinColor={trajectory.color}
+              onPress={() => handleTrajectoryPress(trajectory.id)}
             />
           )
         ))}
@@ -67,6 +114,7 @@ export default function MapComponent({ trajectories = [], children }: MapCompone
               coordinate={trajectory.coordinates[trajectory.coordinates.length - 1]}
               title={`End: ${trajectory.mode}`}
               pinColor="black"
+              onPress={() => handleTrajectoryPress(trajectory.id)}
             />
           )
         ))}
@@ -76,7 +124,28 @@ export default function MapComponent({ trajectories = [], children }: MapCompone
           <Marker coordinate={{ latitude: curitibaRegion.latitude, longitude: curitibaRegion.longitude }} />
         )}
       </MapView>
-      {children}
+      
+      {/* Transport mode overlay buttons - now horizontal at bottom */}
+      <View style={styles.overlayButtonsContainer}>
+        {transportModes.map((mode) => (
+          <TouchableOpacity
+            key={mode.id}
+            style={[
+              styles.modeButton,
+              { backgroundColor: mode.color },
+              selectedMode === mode.id && styles.selectedModeButton
+            ]}
+            onPress={() => handleModePress(mode.id)}
+          >
+            <Image source={mode.iconPath} style={styles.modeIcon} />
+          </TouchableOpacity>
+        ))}
+      </View>
+      
+      {/* Navigation button container */}
+      <View style={styles.navigationButtonContainer}>
+        {children}
+      </View>
     </View>
   );
 }
@@ -88,5 +157,45 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  overlayButtonsContainer: {
+    position: 'absolute',
+    bottom: 160,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 25,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  modeButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 8,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  selectedModeButton: {
+    borderWidth: 3,
+    borderColor: 'white',
+  },
+  modeIcon: {
+    width: 30,
+    height: 30,
+    tintColor: 'white',
+  },
+  navigationButtonContainer: {
+    position: 'absolute',
+    bottom: 75,
+    width: '100%',
+    alignSelf: 'center',
   },
 });

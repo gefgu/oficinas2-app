@@ -1,15 +1,43 @@
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
-import MapComponent, { Trajectory } from '@/components/MapComponent';
+import MapComponent, { Trajectory, TransportModeButton } from '@/components/MapComponent';
 import { ThemedText } from '@/components/ThemedText';
 
 export default function Map1Screen() {
   const router = useRouter();
+  
+  // Define the transport modes with icons
+  const transportModes: TransportModeButton[] = [
+    {
+      id: "mode-bus",
+      mode: "bus",
+      iconPath: require('../assets/icons/bus.png'),
+      color: "#FF5733", // Orange
+    },
+    {
+      id: "mode-car",
+      mode: "car",
+      iconPath: require('../assets/icons/car.png'),
+      color: "#3498DB", // Blue
+    },
+    {
+      id: "mode-bicycle",
+      mode: "bicycle",
+      iconPath: require('../assets/icons/bicycle.png'),
+      color: "#2ECC71", // Green
+    },
+    {
+      id: "mode-walk",
+      mode: "walk",
+      iconPath: require('../assets/icons/walk.png'),
+      color: "#9B59B6", // Purple
+    },
+  ];
 
-  // Sample trajectory data for different transportation modes in Curitiba
-  // Covering a larger area with more curved paths
-  const sampleTrajectories: Trajectory[] = [
+  // State for trajectories
+  const [trajectories, setTrajectories] = useState<Trajectory[]>([
     {
       id: "1",
       mode: "bus",
@@ -82,28 +110,43 @@ export default function Map1Screen() {
         { latitude: -25.4580, longitude: -49.2100 }, // End at Jardim das Américas
       ]
     },
-  ];
+  ]);
+
+  // Handle trajectory mode change
+  const handleTrajectoryModeChange = (trajectoryId: string, newMode: string, newColor: string) => {
+    setTrajectories(prev => 
+      prev.map(trajectory => 
+        trajectory.id === trajectoryId 
+          ? { ...trajectory, mode: newMode, color: newColor } 
+          : trajectory
+      )
+    );
+  };
 
   return (
     <>
-      <MapComponent trajectories={sampleTrajectories} />
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={() => router.push('/purpose_map')}
+      <MapComponent 
+        trajectories={trajectories} 
+        transportModes={transportModes}
+        onTrajectoryModeChange={handleTrajectoryModeChange}
       >
-        <ThemedText style={styles.buttonText}>2</ThemedText>
-      </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => router.push('/purpose_map')}
+        >
+          <ThemedText style={styles.buttonText}>Continue</ThemedText>
+        </TouchableOpacity>
+      </MapComponent>
     </>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    position: 'absolute',
-    bottom: 120,
-    alignSelf: 'center',
     backgroundColor: '#0a7ea4',
-    width: 60,
+    width: "30%",
+    textAlign: 'center',
+    marginHorizontal: "auto",
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
@@ -118,5 +161,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
+    width: '100%',
+    textAlign: 'center',
   },
 });
