@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 import React, { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
-import { ThemedText } from '@/components/ThemedText';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 // Define the coordinate type
 export interface Coordinate {
@@ -155,40 +153,10 @@ export default function PurposeMap({
         {children}
       </View>
     </View>
-=======
-import React from 'react';
-import { StyleSheet } from 'react-native';
-
-import BaseMapComponent, { ModeButton, Trajectory } from './BaseMap';
-
-export interface PurposeMapComponentProps {
-  purposeMarkers: Trajectory[];
-  purposeModes: ModeButton[];
-  onPurposeChange: (markerId: string, newMode: string, newColor: string) => void;
-  children?: React.ReactNode;
-}
-
-export default function PurposeMapComponent({
-  purposeMarkers,
-  purposeModes,
-  onPurposeChange,
-  children
-}: PurposeMapComponentProps) {
-  return (
-    <BaseMapComponent 
-      trajectories={purposeMarkers}
-      modeButtons={purposeModes}
-      onModeChange={onPurposeChange}
-      showLines={false}
-      renderMarker={renderPurposeMarker}
-      children={children}
-    />
->>>>>>> master
   );
 }
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
   container: {
     flex: 1,
   },
@@ -251,23 +219,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 2,
     opacity: 0.8,
-=======
-  callout: {
-    width: 160,
-    padding: 10,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  calloutTitle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5,
-    textTransform: 'capitalize',
-  },
-  calloutText: {
-    fontSize: 14,
->>>>>>> master
   },
 });
