@@ -1,17 +1,21 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 import { Trajectory } from '@/components/MapComponent';
 import { VisitData } from '@/utils/apiService';
+import { VisitPoint, PurposeButton } from '@/components/PurposeMap';
 import { useTransportData } from '@/hooks/useTransportData';
 
 interface DataContextType {
   trajectories: Trajectory[];
   visits: VisitData[];
+  visitPoints: VisitPoint[];
   transportModes: any[];
+  purposeButtons: PurposeButton[];
   loading: boolean;
   error: string | null;
   refetch: () => void;
   updateTrajectoryMode: (trajectoryId: string, newMode: string, newColor: string) => void;
   updateVisitPurpose: (uid: number, trip_number: number, purpose: string) => void;
+  updateVisitPurposeOnMap: (visitId: string, newPurpose: string, newColor: string) => void;
   submitUpdates: () => Promise<void>;
 }
 
