@@ -1,9 +1,10 @@
-import { useRouter } from 'expo-router';
-import { TouchableOpacity, StyleSheet, View } from 'react-native';
+
+import PurposeMap from '@/components/PurposeMap';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import PurposeMap from '@/components/PurposeMap';
 import { useDataContext } from '@/contexts/DataContext';
+import { useRouter } from 'expo-router';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function PurposeMapScreen() {
   const router = useRouter();

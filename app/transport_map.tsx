@@ -1,7 +1,7 @@
-import { useRouter } from 'expo-router';
-import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useRouter } from 'expo-router';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 // Fix the import - use default import
 import TransportMap from '@/components/TransportMap';
 import { useDataContext } from '@/contexts/DataContext';
@@ -93,8 +93,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-    width: '100%',
-    textAlign: 'center',
   },
   errorText: {
     color: 'red',

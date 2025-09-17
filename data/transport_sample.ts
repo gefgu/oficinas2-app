@@ -1,4 +1,4 @@
-import { Trajectory, TransportModeButton } from "@/components/MapComponent";
+import { Trajectory, TransportModeButton } from "@/components/BaseMap";
 
 // Define the transport modes with icons
   const transportModes: TransportModeButton[] = [
