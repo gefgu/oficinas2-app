@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   overlayButtonsContainer: {
     position: 'absolute',
-    bottom: 160,
+    bottom: 180,
     alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   navigationButtonContainer: {
     position: 'absolute',
-    bottom: 75,
+    bottom: 60,
     width: '100%',
     alignSelf: 'center',
   },
