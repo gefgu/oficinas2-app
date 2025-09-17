@@ -61,7 +61,8 @@ export default function HomeScreen() {
         {error && (
           <ThemedView style={styles.errorContainer}>
             <ThemedText style={styles.errorText}>
-              Failed to load data: {error}
+              Failed to load data
+              {/* : {error} */}
             </ThemedText>
             <TouchableOpacity onPress={refetch} style={styles.retryButton}>
               <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
@@ -119,7 +120,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    width: '100%',
     minHeight: 60,
   },
   title: {

@@ -1,13 +1,38 @@
 import { Trajectory } from "@/components/MapComponent";
 
 const API_BASE_URL = "http://192.168.1.83:8000";
-const TIMEOUT_MS = 5000; // 10 seconds timeout
+const TIMEOUT_MS = 5000;
 
 export interface ApiTrajectoryResponse {
-  // Define the structure based on what your API returns from get_sample_trajectories()
-  // You might need to adjust this based on the actual response structure
-  trajectories?: Trajectory[];
-  [key: string]: any;
+  visits: VisitData[];
+  trajectory: TrajectoryData[];
+}
+
+export interface VisitData {
+  uid: number;
+  trip_number: number;
+  arrive_time: string;
+  depart_time: string;
+  latitude: number;
+  longitude: number;
+  purpose: string | null;
+  mode_of_transport: string | null;
+  validated: boolean;
+}
+
+export interface TrajectoryData {
+  uid: number;
+  trip_number: number;
+  trajectory_points: TrajectoryPoint[];
+  point_count: number;
+}
+
+export interface TrajectoryPoint {
+  uid: number;
+  latitude: number;
+  longitude: number;
+  timestamp: string;
+  trip_number: number;
 }
 
 // Helper function to create a fetch with timeout
@@ -21,14 +46,13 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, timeout = TIME
 };
 
 export class ApiService {
-  static async fetchTrajectories(): Promise<Trajectory[]> {
+  static async fetchTrajectories(): Promise<{ visits: VisitData[], trajectories: Trajectory[] }> {
     try {
       console.log('Fetching trajectories from API...');
       console.log('API URL:', `${API_BASE_URL}/trajectories/`);
 
       const startTime = Date.now();
       
-      // Use the correct endpoint from your FastAPI server
       const response = await fetchWithTimeout(`${API_BASE_URL}/trajectories/`, { 
         method: "GET",
         headers: {
@@ -38,52 +62,77 @@ export class ApiService {
 
       const endTime = Date.now();
       console.log(`Request completed in ${endTime - startTime}ms`);
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
       }
       
-      const data = await response.json();
+      const data: ApiTrajectoryResponse = await response.json();
       console.log('API Response:', data);
       
-      // Since your API returns the data directly from get_sample_trajectories()
-      // you might need to adjust this based on the actual structure
-      if (Array.isArray(data)) {
-        return data as Trajectory[];
-      } else if (data.trajectories) {
-        return data.trajectories;
-      } else {
-        console.warn('Unexpected API response structure:', data);
-        return [];
-      }
+      // Convert server data to app format
+      const trajectories: Trajectory[] = data.trajectory.map((traj, index) => ({
+        id: `${traj.uid}-${traj.trip_number}`,
+        uid: traj.uid,
+        trip_number: traj.trip_number,
+        coordinates: traj.trajectory_points.map(point => ({
+          latitude: point.latitude,
+          longitude: point.longitude,
+        })),
+        color: this.getTrajectoryColor(index),
+        mode: data.visits.find(v => v.uid === traj.uid && v.trip_number === traj.trip_number)?.mode_of_transport || 'UNKNOWN',
+      }));
+
+      return {
+        visits: data.visits,
+        trajectories: trajectories
+      };
       
     } catch (error) {
       console.error('Failed to fetch trajectories:', error);
-      
-      // More detailed error logging
-      if (error instanceof Error) {
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-      }
-      
-      // Re-throw the error so the UI can handle it properly
       throw error;
     }
   }
 
-  // Add a simple health check method
+  static async updateVisits(visits: VisitData[]): Promise<void> {
+    try {
+      console.log('Updating visits:', visits);
+      
+      const response = await fetchWithTimeout(`${API_BASE_URL}/trajectories/`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ visits })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Update response:', result);
+      
+    } catch (error) {
+      console.error('Failed to update visits:', error);
+      throw error;
+    }
+  }
+
   static async healthCheck(): Promise<boolean> {
     try {
-      console.log('Performing health check...');
-      const response = await fetchWithTimeout(`${API_BASE_URL}/`, { method: "GET" }, 5000);
-      const isHealthy = response.ok;
-      console.log('Health check result:', isHealthy);
-      return isHealthy;
+      const response = await fetchWithTimeout(`${API_BASE_URL}/`, { 
+        method: "GET" 
+      }, 3000);
+      return response.ok;
     } catch (error) {
       console.error('Health check failed:', error);
       return false;
     }
+  }
+
+  private static getTrajectoryColor(index: number): string {
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
+    return colors[index % colors.length];
   }
 }

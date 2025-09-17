@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
 
+import { DataProvider } from '@/contexts/DataContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function RootLayout() {
@@ -18,17 +19,19 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="transport_map" />
-        <Stack.Screen name="purpose_map" />
-        <Stack.Screen name="finish" />
-      </Stack>
+      <DataProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+          }}
+        >
+          <Stack.Screen name="index" options={{ title: 'NetMob' }} />
+          <Stack.Screen name="transport_map" options={{ title: 'Transport Mode' }} />
+          <Stack.Screen name="purpose_map" options={{ title: 'Visit Purposes' }} />
+          <Stack.Screen name="finish" options={{ title: 'Complete' }} />
+        </Stack>
+      </DataProvider>
     </ThemeProvider>
   );
 }

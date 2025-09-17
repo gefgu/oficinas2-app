@@ -1,37 +1,12 @@
-import { Trajectory, TransportModeButton } from "@/components/MapComponent";
-import { ApiService } from '@/utils/apiService';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Trajectory } from '@/components/MapComponent';
+import { ApiService, VisitData } from '@/utils/apiService';
+import { transportModes } from '@/data/transport_sample'; // Import the transport modes
 
-// Keep your transport modes as they are
-const transportModes: TransportModeButton[] = [
-  {
-    id: "mode-bus",
-    mode: "bus",
-    iconPath: require('../assets/icons/bus.png'),
-    color: "#FF5733",
-  },
-  {
-    id: "mode-car",
-    mode: "car",
-    iconPath: require('../assets/icons/car.png'),
-    color: "#3498DB",
-  },
-  {
-    id: "mode-bicycle",
-    mode: "bicycle",
-    iconPath: require('../assets/icons/bicycle.png'),
-    color: "#2ECC71",
-  },
-  {
-    id: "mode-walk",
-    mode: "walk",
-    iconPath: require('../assets/icons/walk.png'),
-    color: "#9B59B6",
-  },
-];
 
 export const useTransportData = () => {
   const [trajectories, setTrajectories] = useState<Trajectory[]>([]);
+  const [visits, setVisits] = useState<VisitData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,12 +19,55 @@ export const useTransportData = () => {
       setLoading(true);
       setError(null);
       const data = await ApiService.fetchTrajectories();
-      console.log('Fetched trajectories:', data);
-      setTrajectories(data);
+      console.log('Fetched data:', data);
+      setTrajectories(data.trajectories);
+      setVisits(data.visits);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateTrajectoryMode = (trajectoryId: string, newMode: string, newColor: string) => {
+    setTrajectories(prev => 
+      prev.map(trajectory => 
+        trajectory.id === trajectoryId 
+          ? { ...trajectory, mode: newMode, color: newColor } 
+          : trajectory
+      )
+    );
+
+    // Update corresponding visit
+    const trajectory = trajectories.find(t => t.id === trajectoryId);
+    if (trajectory) {
+      setVisits(prev => 
+        prev.map(visit => 
+          visit.uid === trajectory.uid && visit.trip_number === trajectory.trip_number
+            ? { ...visit, mode_of_transport: newMode }
+            : visit
+        )
+      );
+    }
+  };
+
+  const updateVisitPurpose = (uid: number, trip_number: number, purpose: string) => {
+    setVisits(prev => 
+      prev.map(visit => 
+        visit.uid === uid && visit.trip_number === trip_number
+          ? { ...visit, purpose }
+          : visit
+      )
+    );
+  };
+
+  const submitUpdates = async () => {
+    try {
+      await ApiService.updateVisits(visits);
+      console.log('Successfully submitted updates');
+    } catch (error) {
+      console.error('Failed to submit updates:', error);
+      throw error;
     }
   };
 
@@ -59,9 +77,13 @@ export const useTransportData = () => {
 
   return {
     trajectories,
+    visits,
     transportModes,
     loading,
     error,
     refetch,
+    updateTrajectoryMode,
+    updateVisitPurpose,
+    submitUpdates,
   };
 };

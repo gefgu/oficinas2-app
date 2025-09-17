@@ -103,27 +103,15 @@ export default function TransportMap({
           />
         ))}
 
-        {/* Render start points as markers */}
+        {/* Render only start points as markers */}
         {trajectories.map((trajectory) => (
           trajectory.coordinates.length > 0 && (
             <Marker
-              key={`start-${trajectory.id}`}
+              key={`marker-${trajectory.id}`}
               coordinate={trajectory.coordinates[0]}
-              title={`Start: ${trajectory.mode}`}
+              title={`Trip ${trajectory.id.split('-')[1]} - ${trajectory.mode}`}
+              description="Start of trajectory"
               pinColor={trajectory.color}
-              onPress={() => handleTrajectoryPress(trajectory.id)}
-            />
-          )
-        ))}
-
-        {/* Render end points as markers */}
-        {trajectories.map((trajectory) => (
-          trajectory.coordinates.length > 0 && (
-            <Marker
-              key={`end-${trajectory.id}`}
-              coordinate={trajectory.coordinates[trajectory.coordinates.length - 1]}
-              title={`End: ${trajectory.mode}`}
-              pinColor="black"
               onPress={() => handleTrajectoryPress(trajectory.id)}
             />
           )

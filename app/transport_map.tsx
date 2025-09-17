@@ -1,34 +1,65 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-
+import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
-import TransportMap, { Trajectory } from '@/components/TransportMap';
-import { sampleTrajectory, transportModes } from '@/data/transport_sample';
-import { useState } from 'react';
+import { ThemedView } from '@/components/ThemedView';
+// Fix the import - use default import
+import TransportMap from '@/components/TransportMap';
+import { useDataContext } from '@/contexts/DataContext';
 
 export default function TransportMapScreen() {
   const router = useRouter();
+  const { trajectories, transportModes, updateTrajectoryMode, loading, error } = useDataContext();
 
-   // State for trajectories
-  const [trajectories, setTrajectories] = useState<Trajectory[]>(sampleTrajectory);
-
-  // Handle trajectory mode change
-  const handleTrajectoryModeChange = (trajectoryId: string, newMode: string, newColor: string) => {
-    setTrajectories(prev => 
-      prev.map(trajectory => 
-        trajectory.id === trajectoryId 
-          ? { ...trajectory, mode: newMode, color: newColor } 
-          : trajectory
-      )
+  // Handle case when no data is available
+  if (loading) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedText>Loading trajectories...</ThemedText>
+      </ThemedView>
     );
-  };
+  }
+
+  if (error) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedText style={styles.errorText}>Error: {error}</ThemedText>
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => router.push('/purpose_map')}
+        >
+          <ThemedText style={styles.buttonText}>Continue Anyway</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  }
+
+  if (trajectories.length === 0) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedText style={styles.noDataText}>No mobility data available to review</ThemedText>
+        <ThemedText style={styles.noDataSubtext}>
+          It looks like there's no trajectory data to display. This could mean:
+        </ThemedText>
+        <ThemedText style={styles.bulletPoint}>• No GPS data was recorded</ThemedText>
+        <ThemedText style={styles.bulletPoint}>• The server has no data for your user</ThemedText>
+        <ThemedText style={styles.bulletPoint}>• There was an issue processing the data</ThemedText>
+        
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => router.push('/finish')}
+        >
+          <ThemedText style={styles.buttonText}>Continue</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  }
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <TransportMap 
         trajectories={trajectories} 
         transportModes={transportModes}
-        onTrajectoryModeChange={handleTrajectoryModeChange}
+        onTrajectoryModeChange={updateTrajectoryMode}
       >
         <TouchableOpacity 
           style={styles.button}
@@ -37,31 +68,55 @@ export default function TransportMapScreen() {
           <ThemedText style={styles.buttonText}>Continue</ThemedText>
         </TouchableOpacity>
       </TransportMap>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#0a7ea4',
-    width: "30%",
-    textAlign: 'center',
-    marginHorizontal: "auto",
-    height: 60,
-    borderRadius: 30,
+  container: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    padding: 20,
+  },
+  button: {
+    position: 'absolute',
+    bottom: 50,
+    left: 20,
+    right: 20,
+    backgroundColor: '#0a7ea4',
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
   },
   buttonText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    width: '100%',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  noDataText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  noDataSubtext: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 15,
+    opacity: 0.8,
+  },
+  bulletPoint: {
+    fontSize: 12,
+    textAlign: 'left',
+    marginBottom: 5,
+    opacity: 0.7,
+    alignSelf: 'flex-start',
   },
 });

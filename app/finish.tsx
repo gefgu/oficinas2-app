@@ -1,13 +1,14 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ActivityIndicator, Dimensions, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { submitUserData } from '@/utils/dataSubmission';
+import { useDataContext } from '@/contexts/DataContext';
+import { useState } from 'react';
 
 export default function FinishScreen() {
   const router = useRouter();
+  const { submitUpdates } = useDataContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,16 +18,21 @@ export default function FinishScreen() {
     setError(null);
     
     try {
-      // This will be replaced with actual data from your app state/context
-      // For now we just pass placeholder data
-      await submitUserData({
-        transportData: { trajectories: [] },
-        purposeData: { points: [] }
-      });
-      
+      await submitUpdates();
       setIsSubmitted(true);
+      
+      Alert.alert(
+        'Success!',
+        'Your data has been submitted successfully.',
+        [{ text: 'OK', onPress: () => router.push('/') }]
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit data');
+      Alert.alert(
+        'Error',
+        'Failed to submit data. Please try again.',
+        [{ text: 'OK' }]
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -36,64 +42,38 @@ export default function FinishScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title" style={styles.title} adjustsFontSizeToFit numberOfLines={1}>
-            NetMob
+          <ThemedText type="title">Review Complete!</ThemedText>
+          <ThemedText style={styles.subtitle}>
+            Thank you for reviewing your mobility data.
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.messageContainer}>
-          {isSubmitted ? (
-            <>
-              <ThemedText style={styles.successMessage}>
-                Thank you! Your mobility data has been successfully submitted.
-              </ThemedText>
-            </>
-          ) : (
-            <>
-              <ThemedText style={styles.infoMessage}>
-                Thank you for recording your journey. Submit your data to help improve mobility planning.
-              </ThemedText>
-              
-              {error && (
-                <ThemedText style={styles.errorMessage}>
-                  {error}
-                </ThemedText>
-              )}
-            </>
-          )}
-        </ThemedView>
-
-        {isSubmitting ? (
-          <ActivityIndicator size="large" color="#0a7ea4" />
-        ) : (
-          <ThemedView style={styles.buttonContainer}>
-            {!isSubmitted ? (
-              <TouchableOpacity 
-                style={styles.submitButton}
-                onPress={handleSubmitData}
-              >
-                <ThemedText style={styles.buttonText}>Submit Data</ThemedText>
-              </TouchableOpacity>
-            ) : null}
-            
-            <TouchableOpacity 
-              style={[styles.button, isSubmitted ? styles.homeButton : {}]}
-              onPress={() => router.push('/')}
-            >
-              <ThemedText style={styles.buttonText}>
-                {isSubmitted ? 'Return Home' : 'Cancel'}
-              </ThemedText>
-            </TouchableOpacity>
+        {error && (
+          <ThemedView style={styles.errorContainer}>
+            <ThemedText style={styles.errorText}>{error}</ThemedText>
           </ThemedView>
         )}
+
+        <TouchableOpacity 
+          style={[styles.button, (isSubmitting || isSubmitted) && styles.buttonDisabled]}
+          onPress={handleSubmitData}
+          disabled={isSubmitting || isSubmitted}
+        >
+          <ThemedText style={styles.buttonText}>
+            {isSubmitting ? 'Submitting...' : isSubmitted ? 'Submitted!' : 'Submit Data'}
+          </ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.secondaryButton}
+          onPress={() => router.push('/')}
+        >
+          <ThemedText style={styles.secondaryButtonText}>Back to Home</ThemedText>
+        </TouchableOpacity>
       </ThemedView>
     </SafeAreaView>
   );
 }
-
-// More precise responsive sizing
-const { width } = Dimensions.get('window');
-const responsiveFontSize = Math.min(38, width * 0.2); // Slightly reduced for better fit
 
 const styles = StyleSheet.create({
   container: {
@@ -104,73 +84,56 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    width: '100%',
-    minHeight: 60,
+    marginBottom: 40,
   },
-  title: {
-    fontSize: responsiveFontSize,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-  messageContainer: {
-    width: '90%',
-    marginBottom: 30,
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  infoMessage: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  successMessage: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: '#2ECC71',
-    fontWeight: '500',
-  },
-  errorMessage: {
+  subtitle: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#E74C3C',
     marginTop: 10,
-  },
-  buttonContainer: {
-    width: '100%',
-    alignItems: 'center',
+    opacity: 0.7,
   },
   button: {
-    backgroundColor: '#95a5a6',
-    paddingHorizontal: 0,
+    backgroundColor: '#0a7ea4',
+    paddingHorizontal: 40,
     paddingVertical: 15,
     borderRadius: 8,
-    marginTop: 15,
-    width: '60%',
+    marginBottom: 20,
+    width: '80%',
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  submitButton: {
-    backgroundColor: '#0a7ea4',
-    paddingHorizontal: 0,
-    paddingVertical: 15,
-    borderRadius: 8,
-    marginTop: 15,
-    width: '60%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  homeButton: {
-    backgroundColor: '#0a7ea4',
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  secondaryButton: {
+    paddingHorizontal: 40,
+    paddingVertical: 15,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#0a7ea4',
+    width: '80%',
+    alignItems: 'center',
+  },
+  secondaryButtonText: {
+    color: '#0a7ea4',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 20,
     width: '100%',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
     textAlign: 'center',
   },
 });
