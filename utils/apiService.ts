@@ -1,7 +1,11 @@
-import { Trajectory } from "@/components/MapComponent";
+import { Trajectory } from "@/components/BaseMap";
 
-const API_BASE_URL = "http://192.168.1.83:8000";
+// Get API URL from environment variable with fallback
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.83:8000";
 const TIMEOUT_MS = 5000;
+
+// Log the API URL being used (helpful for debugging)
+console.log('API Base URL:', API_BASE_URL);
 
 export interface ApiTrajectoryResponse {
   visits: VisitData[];
@@ -10,7 +14,7 @@ export interface ApiTrajectoryResponse {
 
 export interface VisitData {
   uid: number;
-  trip_number: number;
+  visit_number: number;
   arrive_time: string;
   depart_time: string;
   latitude: number;
@@ -18,11 +22,12 @@ export interface VisitData {
   purpose: string | null;
   mode_of_transport: string | null;
   validated: boolean;
+  created_at?: string;
 }
 
 export interface TrajectoryData {
   uid: number;
-  trip_number: number;
+  visit_number: number;
   trajectory_points: TrajectoryPoint[];
   point_count: number;
 }
@@ -32,7 +37,7 @@ export interface TrajectoryPoint {
   latitude: number;
   longitude: number;
   timestamp: string;
-  trip_number: number;
+  visit_number: number;
 }
 
 // Helper function to create a fetch with timeout
@@ -72,15 +77,15 @@ export class ApiService {
       
       // Convert server data to app format
       const trajectories: Trajectory[] = data.trajectory.map((traj, index) => ({
-        id: `${traj.uid}-${traj.trip_number}`,
+        id: `${traj.uid}-${traj.visit_number}`,
         uid: traj.uid,
-        trip_number: traj.trip_number,
+        trip_number: traj.visit_number,
         coordinates: traj.trajectory_points.map(point => ({
           latitude: point.latitude,
           longitude: point.longitude,
         })),
         color: this.getTrajectoryColor(index),
-        mode: data.visits.find(v => v.uid === traj.uid && v.trip_number === traj.trip_number)?.mode_of_transport || 'UNKNOWN',
+        mode: data.visits.find(v => v.uid === traj.uid && v.visit_number === traj.visit_number)?.mode_of_transport || 'UNKNOWN',
       }));
 
       return {

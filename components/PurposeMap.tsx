@@ -12,7 +12,7 @@ export interface Coordinate {
 export interface VisitPoint {
   id: string;
   uid: number;
-  trip_number: number;
+  visit_number: number;
   coordinate: Coordinate;
   purpose: string;
   arrive_time: string;
@@ -101,7 +101,7 @@ export default function PurposeMap({
           <Marker
             key={`visit-${visit.id}-${visit.purpose}-${visit.color}`} // Add purpose and color to force re-render
             coordinate={visit.coordinate}
-            title={`Trip ${visit.trip_number} - ${visit.purpose || 'Not set'}`}
+            title={`Visit ${visit.visit_number} - ${visit.purpose || 'Not set'}`}
             description={`${new Date(visit.arrive_time).toLocaleTimeString()} - ${new Date(visit.depart_time).toLocaleTimeString()}`}
             pinColor={visit.color}
             onPress={() => handleVisitPress(visit.id)}
@@ -109,7 +109,7 @@ export default function PurposeMap({
             {/* <Callout>
               <View style={styles.callout}>
                 <ThemedText style={[styles.calloutTitle, { color: visit.color }]}>
-                  Trip {visit.trip_number}
+                  Visit {visit.visit_number}
                 </ThemedText>
                 <ThemedText style={styles.calloutText}>
                   Purpose: {visit.purpose || 'Not set'}

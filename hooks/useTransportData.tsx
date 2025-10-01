@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Trajectory } from '@/components/MapComponent';
-import { ApiService, VisitData } from '@/utils/apiService';
-import { VisitPoint, PurposeButton } from '@/components/PurposeMap';
-import { transportModes } from '@/data/transport_sample';
+import { Trajectory } from '@/components/BaseMap';
+import { VisitPoint } from '@/components/PurposeMap';
 import { purposeButtons } from '@/data/purpose_sample';
+import { transportModes } from '@/data/transport_sample';
+import { ApiService, VisitData } from '@/utils/apiService';
+import { useEffect, useState } from 'react';
 
 
 const getPurposeColor = (purpose: string): string => {
@@ -31,9 +31,9 @@ export const useTransportData = () => {
   // Update visit points when visits change
   useEffect(() => {
     const points: VisitPoint[] = visits.map((visit) => ({
-      id: `${visit.uid}-${visit.trip_number}`,
+      id: `${visit.uid}-${visit.visit_number}`,
       uid: visit.uid,
-      trip_number: visit.trip_number,
+      visit_number: visit.visit_number,
       coordinate: {
         latitude: visit.latitude,
         longitude: visit.longitude,
@@ -71,22 +71,20 @@ export const useTransportData = () => {
     );
 
     // Update corresponding visit
-    const trajectory = trajectories.find(t => t.id === trajectoryId);
-    if (trajectory) {
-      setVisits(prev => 
-        prev.map(visit => 
-          visit.uid === trajectory.uid && visit.trip_number === trajectory.trip_number
-            ? { ...visit, mode_of_transport: newMode }
-            : visit
-        )
-      );
-    }
-  };
-
-  const updateVisitPurpose = (uid: number, trip_number: number, purpose: string) => {
+    const [uid, visit_number] = trajectoryId.split('-').map(Number);
     setVisits(prev => 
       prev.map(visit => 
-        visit.uid === uid && visit.trip_number === trip_number
+        visit.uid === uid && visit.visit_number === visit_number
+          ? { ...visit, mode_of_transport: newMode }
+          : visit
+      )
+    );
+  };
+
+  const updateVisitPurpose = (uid: number, visit_number: number, purpose: string) => {
+    setVisits(prev => 
+      prev.map(visit => 
+        visit.uid === uid && visit.visit_number === visit_number
           ? { ...visit, purpose }
           : visit
       )
@@ -104,8 +102,8 @@ export const useTransportData = () => {
     );
 
     // Update visits data
-    const [uid, trip_number] = visitId.split('-').map(Number);
-    updateVisitPurpose(uid, trip_number, newPurpose);
+    const [uid, visit_number] = visitId.split('-').map(Number);
+    updateVisitPurpose(uid, visit_number, newPurpose);
   };
 
   const submitUpdates = async () => {
