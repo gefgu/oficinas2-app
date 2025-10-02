@@ -16,6 +16,8 @@ export interface Trajectory {
   coordinates: Coordinate[];
   date?: string;
   time?: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 // Define mode button type

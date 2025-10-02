@@ -10,7 +10,10 @@ NetMob is a React Native Expo app for validating and editing GPS trajectory and 
 - **API Integration**: `ApiService` in `utils/apiService.ts` uses hardcoded base URL (`http://192.168.1.83:8000`) with 5s timeout via `fetchWithTimeout`
 - **Dual Data Structures**: `visits[]` (server model with uid/visit_number) and `trajectories[]`/`visitPoints[]` (UI model with composite IDs like "123-1")
 - **Update Pattern**: UI changes update both structures immediately, then `submitUpdates()` sends `visits[]` to backend via PUT
-- **Composite Keys**: Always use `${uid}-${visit_number}` for trajectory/visit IDs to link UI elements to server data
+- **Composite Keys**: 
+  - Trajectories: `${uid}-${trip_number}` where trip_number matches the destination visit's visit_number
+  - VisitPoints: `${uid}-${visit_number}`
+  - When updating from trajectory, parse the ID and match trip_number to visit_number
 
 ### Component Hierarchy
 ```
@@ -77,8 +80,10 @@ npm run ios          # Run on iOS
 
 ### API Data Contract
 **VisitData**: `{ uid, visit_number, arrive_time, depart_time, latitude, longitude, purpose, mode_of_transport, validated, created_at }`
-**TrajectoryData**: `{ uid, visit_number, trajectory_points[], point_count }`
-**TrajectoryPoint**: `{ uid, latitude, longitude, timestamp, visit_number }`
+**TrajectoryData**: `{ uid, trip_number, trajectory_points[], point_count }`
+  - Note: `trip_number` in trajectory corresponds to the destination visit's `visit_number`
+  - Trajectory with `trip_number: N` represents the path TO visit N
+**TrajectoryPoint**: `{ uid, latitude, longitude, timestamp }`
 
 ## Common Tasks
 
@@ -99,7 +104,11 @@ npm run ios          # Run on iOS
 - Map fills entire screen, buttons layered on top
 
 ## Pitfalls & Gotchas
-- **Don't break composite IDs**: Always split/join with `${uid}-${visit_number}` format
+- **Don't break composite IDs**: 
+  - Trajectories use `${uid}-${trip_number}` 
+  - VisitPoints use `${uid}-${visit_number}`
+  - trip_number in trajectory = visit_number of destination visit
+- **API Naming Inconsistency**: Trajectories use `trip_number`, Visits use `visit_number` - they correspond to each other
 - **Update both data structures**: Changing mode/purpose must update both UI state (trajectories/visitPoints) and server model (visits)
 - **Handle empty data gracefully**: All screens check for `loading`, `error`, and empty arrays before rendering maps
 - **Timeout on API calls**: Default 5s timeout can fail on slow networks - adjust `TIMEOUT_MS` if needed

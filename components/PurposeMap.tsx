@@ -53,6 +53,34 @@ export default function PurposeMap({
     longitudeDelta: 0.0421,
   };
 
+  // Helper function to format timestamp with day/month and time
+  const formatDateTime = (timestamp: string | undefined): string => {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${day}/${month} ${hours}:${minutes}`;
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  // Helper function to format time only
+  const formatTime = (timestamp: string | undefined): string => {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    } catch {
+      return 'N/A';
+    }
+  };
+
   // Handle visit marker selection
   const handleVisitPress = (visitId: string) => {
     setSelectedVisit(visitId === selectedVisit ? null : visitId);
@@ -97,33 +125,38 @@ export default function PurposeMap({
         initialRegion={curitibaRegion}
       >
         {/* Render visit markers */}
-        {visits.map((visit) => (
-          <Marker
-            key={`visit-${visit.id}-${visit.purpose}-${visit.color}`} // Add purpose and color to force re-render
-            coordinate={visit.coordinate}
-            title={`Visit ${visit.visit_number} - ${visit.purpose || 'Not set'}`}
-            description={`${new Date(visit.arrive_time).toLocaleTimeString()} - ${new Date(visit.depart_time).toLocaleTimeString()}`}
-            pinColor={visit.color}
-            onPress={() => handleVisitPress(visit.id)}
-          >
-            {/* <Callout>
-              <View style={styles.callout}>
-                <ThemedText style={[styles.calloutTitle, { color: visit.color }]}>
-                  Visit {visit.visit_number}
-                </ThemedText>
-                <ThemedText style={styles.calloutText}>
-                  Purpose: {visit.purpose || 'Not set'}
-                </ThemedText>
-                <ThemedText style={styles.calloutText}>
-                  Arrive: {new Date(visit.arrive_time).toLocaleTimeString()}
-                </ThemedText>
-                <ThemedText style={styles.calloutText}>
-                  Depart: {new Date(visit.depart_time).toLocaleTimeString()}
-                </ThemedText>
-              </View>
-            </Callout> */}
-          </Marker>
-        ))}
+        {visits.map((visit) => {
+          const arriveTime = formatDateTime(visit.arrive_time);
+          const departTime = formatTime(visit.depart_time);
+          
+          return (
+            <Marker
+              key={`visit-${visit.id}-${visit.purpose}-${visit.color}`} // Add purpose and color to force re-render
+              coordinate={visit.coordinate}
+              title={`${arriveTime} → ${departTime} - ${visit.purpose || 'Not set'}`}
+              description="Tap to change purpose"
+              pinColor={visit.color}
+              onPress={() => handleVisitPress(visit.id)}
+            >
+              {/* <Callout>
+                <View style={styles.callout}>
+                  <ThemedText style={[styles.calloutTitle, { color: visit.color }]}>
+                    Visit {visit.visit_number}
+                  </ThemedText>
+                  <ThemedText style={styles.calloutText}>
+                    Purpose: {visit.purpose || 'Not set'}
+                  </ThemedText>
+                  <ThemedText style={styles.calloutText}>
+                    Arrive: {new Date(visit.arrive_time).toLocaleTimeString()}
+                  </ThemedText>
+                  <ThemedText style={styles.calloutText}>
+                    Depart: {new Date(visit.depart_time).toLocaleTimeString()}
+                  </ThemedText>
+                </View>
+              </Callout> */}
+            </Marker>
+          );
+        })}
 
         {/* Default marker for Curitiba center if no visits */}
         {visits.length === 0 && (

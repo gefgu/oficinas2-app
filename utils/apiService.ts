@@ -27,9 +27,11 @@ export interface VisitData {
 
 export interface TrajectoryData {
   uid: number;
-  visit_number: number;
+  trip_number: number;
   trajectory_points: TrajectoryPoint[];
   point_count: number;
+  start_time: string;
+  end_time: string;
 }
 
 export interface TrajectoryPoint {
@@ -76,16 +78,20 @@ export class ApiService {
       console.log('API Response:', data);
       
       // Convert server data to app format
+      // Note: API uses trip_number in trajectory but visit_number in visits
+      // trip_number corresponds to the destination visit (trip_number N = trajectory TO visit N)
       const trajectories: Trajectory[] = data.trajectory.map((traj, index) => ({
-        id: `${traj.uid}-${traj.visit_number}`,
+        id: `${traj.uid}-${traj.trip_number}`,
         uid: traj.uid,
-        trip_number: traj.visit_number,
+        trip_number: traj.trip_number,
         coordinates: traj.trajectory_points.map(point => ({
           latitude: point.latitude,
           longitude: point.longitude,
         })),
         color: this.getTrajectoryColor(index),
-        mode: data.visits.find(v => v.uid === traj.uid && v.visit_number === traj.visit_number)?.mode_of_transport || 'UNKNOWN',
+        mode: data.visits.find(v => v.uid === traj.uid && v.visit_number === traj.trip_number)?.mode_of_transport || 'UNKNOWN',
+        startTime: traj.start_time,
+        endTime: traj.end_time,
       }));
 
       return {

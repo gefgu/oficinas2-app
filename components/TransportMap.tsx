@@ -14,6 +14,8 @@ export interface Trajectory {
   mode: string; // "bus", "car", "walk", etc. or purpose like "work", "leisure", etc.
   color: string;
   coordinates: Coordinate[];
+  startTime?: string;
+  endTime?: string;
 }
 
 // Define transport mode button type
@@ -46,6 +48,43 @@ export default function TransportMap({
     longitude: -49.2671,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
+  };
+
+  // Helper function to get the middle coordinate of a trajectory
+  const getMiddleCoordinate = (coordinates: Coordinate[]): Coordinate | null => {
+    if (coordinates.length === 0) return null;
+    const middleIndex = Math.floor(coordinates.length / 2);
+    return coordinates[middleIndex];
+  };
+
+  // Helper function to format start timestamp with day/month and time
+  const formatStartTime = (timestamp: string | undefined): string => {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${day}/${month} ${hours}:${minutes}`;
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  // Helper function to format end timestamp (time only)
+  const formatEndTime = (timestamp: string | undefined): string => {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+    } catch {
+      return 'N/A';
+    }
   };
 
   // Handle trajectory selection
@@ -103,19 +142,23 @@ export default function TransportMap({
           />
         ))}
 
-        {/* Render only start points as markers */}
-        {trajectories.map((trajectory) => (
-          trajectory.coordinates.length > 0 && (
+        {/* Render middle point markers for each trajectory */}
+        {trajectories.map((trajectory) => {
+          const middleCoord = getMiddleCoordinate(trajectory.coordinates);
+          const startTime = formatStartTime(trajectory.startTime);
+          const endTime = formatEndTime(trajectory.endTime);
+          
+          return middleCoord ? (
             <Marker
-              key={`marker-${trajectory.id}`}
-              coordinate={trajectory.coordinates[0]}
-              title={`Trip ${trajectory.id.split('-')[1]} - ${trajectory.mode}`}
-              description="Start of trajectory"
+              key={`marker-${trajectory.id}-${trajectory.mode}-${trajectory.color}`}
+              coordinate={middleCoord}
+              title={`${startTime} → ${endTime} - ${trajectory.mode}`}
+              description="Tap to change transport mode"
               pinColor={trajectory.color}
               onPress={() => handleTrajectoryPress(trajectory.id)}
             />
-          )
-        ))}
+          ) : null;
+        })}
 
         {/* Default marker for Curitiba center if no trajectories */}
         {trajectories.length === 0 && (
