@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: responsiveFontSize,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat-Bold',
     marginBottom: 30,
     textAlign: 'center',
   },
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat-Bold',
     width: '100%',
     textAlign: 'center',
   },
@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 14,
+    fontFamily: 'Montserrat-Regular',
     textAlign: 'center',
   },
   errorContainer: {
@@ -190,6 +191,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 14,
+    fontFamily: 'Montserrat-Regular',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -202,10 +204,11 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: 'white',
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat-Bold',
   },
   statusText: {
     fontSize: 12,
+    fontFamily: 'Montserrat-Regular',
     marginBottom: 10,
     textAlign: 'center',
     opacity: 0.7,

@@ -10,6 +10,10 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'Montserrat-Regular': require('../assets/fonts/Montserrat-Regular.ttf'),
+    'Montserrat-Bold': require('../assets/fonts/Montserrat-Bold.ttf'),
+    'Montserrat-Medium': require('../assets/fonts/Montserrat-Medium.ttf'),
+    'Montserrat-SemiBold': require('../assets/fonts/Montserrat-SemiBold.ttf'),
   });
 
   if (!loaded) {
