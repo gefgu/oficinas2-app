@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Alert, Dimensions, ImageBackground, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Image, ImageBackground, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -61,8 +61,13 @@ export default function HomeScreen() {
         <ThemedView style={styles.container}>
           <ThemedView style={styles.titleContainer}>
             <ThemedText type="title" style={styles.title} adjustsFontSizeToFit numberOfLines={1}>
-              NetMob
+              NETMOB
             </ThemedText>
+            <Image 
+              source={require('../assets/icons/compass.png')} 
+              style={styles.compassIcon}
+              resizeMode="contain"
+            />
           </ThemedView>
 
           {/* Error Display */}
@@ -126,7 +131,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(128, 128, 128, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   container: {
     flex: 1,
@@ -136,6 +141,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   titleContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
@@ -147,6 +153,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Bold',
     marginBottom: 30,
     textAlign: 'center',
+    textTransform: 'capitalize',
+  },
+  compassIcon: {
+    width: responsiveFontSize * 0.9,
+    height: responsiveFontSize * 0.9,
+    marginLeft: 10,
+    marginBottom: 30,
+    color: "white",
+    // backgroundColor: "white"
   },
   button: {
     backgroundColor: '#0a7ea4',
