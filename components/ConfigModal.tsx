@@ -19,6 +19,7 @@ interface ConfigModalProps {
   onUrlChange: (newUrl: string) => void;
   onRetry: () => void;
   error: string | null;
+  onLoadSampleData: () => void;
 }
 
 const ConfigModal: React.FC<ConfigModalProps> = ({
@@ -28,6 +29,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({
   onUrlChange,
   onRetry,
   error,
+  onLoadSampleData,
 }) => {
   const [inputUrl, setInputUrl] = useState(currentUrl);
   const [testResult, setTestResult] = useState<string | null>(null);
@@ -172,6 +174,19 @@ const ConfigModal: React.FC<ConfigModalProps> = ({
               >
                 <ThemedText style={styles.retryButtonText}>
                   Retry Connection
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
+
+            {/* Sample Data */}
+            <View style={styles.section}>
+              <ThemedText style={styles.label}>Sample Data</ThemedText>
+              <TouchableOpacity
+                style={styles.sampleDataButton}
+                onPress={onLoadSampleData}
+              >
+                <ThemedText style={styles.sampleDataButtonText}>
+                  Use Sample Data
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -323,6 +338,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   retryButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'Montserrat-Bold',
+  },
+  sampleDataButton: {
+    backgroundColor: '#9C27B0',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  sampleDataButtonText: {
     color: '#fff',
     fontSize: 14,
     fontFamily: 'Montserrat-Bold',

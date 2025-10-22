@@ -5,14 +5,14 @@ import CircularLoadingIndicator from '@/components/CircularLoadingIndicator';
 import ConfigModal from '@/components/ConfigModal';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useTransportData } from '@/hooks/useTransportData';
+import { useDataContext } from '@/contexts/DataContext';
 import { ApiService } from '@/utils/apiService';
 import React, { useEffect, useState } from 'react';
 
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { trajectories, transportModes, loading, error, refetch } = useTransportData();
+  const { trajectories, transportModes, loading, error, refetch, loadSampleData } = useDataContext();
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [serverUrl, setServerUrl] = useState(ApiService.getBaseUrl());
 
@@ -119,6 +119,10 @@ export default function HomeScreen() {
           }}
           onRetry={refetch}
           error={error}
+          onLoadSampleData={() => {
+            setShowConfigModal(false);
+            loadSampleData();
+          }}
         />
       </ImageBackground>
     </SafeAreaView>

@@ -17,6 +17,8 @@ interface DataContextType {
   updateVisitPurpose: (uid: number, visit_number: number, purpose: string) => void;
   updateVisitPurposeOnMap: (visitId: string, newPurpose: string, newColor: string) => void;
   submitUpdates: () => Promise<void>;
+  isSampleMode: boolean;
+  loadSampleData: () => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);

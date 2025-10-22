@@ -1,3 +1,4 @@
+import sampleDataJson from '@/assets/data/sample_data.json';
 import { Trajectory } from '@/components/BaseMap';
 import { VisitPoint } from '@/components/PurposeMap';
 import { purposeButtons } from '@/data/purpose_sample';
@@ -34,6 +35,7 @@ export const useTransportData = () => {
   const [visitPoints, setVisitPoints] = useState<VisitPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSampleMode, setIsSampleMode] = useState(false);
 
   useEffect(() => {
     loadTrajectories();
@@ -65,11 +67,51 @@ export const useTransportData = () => {
       console.log('Fetched data:', data);
       setTrajectories(data.trajectories);
       setVisits(data.visits);
+      setIsSampleMode(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
       setTimeout(() =>  setLoading(false), 500); // slight delay for better UX
       // setLoading(false);
+    }
+  };
+
+  const loadSampleData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Use imported sample data
+      const sampleData = sampleDataJson;
+      console.log('Loading sample data:', sampleData);
+      
+      // Process sample data same way as API data
+      const trajectories: Trajectory[] = sampleData.trajectory.map((traj: any) => {
+        const mode = sampleData.visits.find((v: any) => v.uid === traj.uid && v.visit_number === traj.trip_number)?.mode_of_transport || 'other';
+        return {
+          id: `${traj.uid}-${traj.trip_number}`,
+          uid: traj.uid,
+          trip_number: traj.trip_number,
+          coordinates: traj.trajectory_points.map((point: any) => ({
+            latitude: point.latitude,
+            longitude: point.longitude,
+          })),
+          color: getTransportModeColor(mode),
+          mode: mode,
+          startTime: traj.trajectory_points[0]?.timestamp || '',
+          endTime: traj.trajectory_points[traj.trajectory_points.length - 1]?.timestamp || '',
+        };
+      });
+
+      setTrajectories(trajectories);
+      setVisits(sampleData.visits);
+      setIsSampleMode(true);
+      console.log('Sample data loaded successfully');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load sample data');
+      console.error('Failed to load sample data:', err);
+    } finally {
+      setTimeout(() => setLoading(false), 500);
     }
   };
 
@@ -120,6 +162,15 @@ export const useTransportData = () => {
 
   const submitUpdates = async () => {
     try {
+      if (isSampleMode) {
+        // In sample mode, just simulate success without making API call
+        console.log('Sample mode: Skipping API submission');
+        console.log('Would have submitted:', visits);
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return;
+      }
+      
       await ApiService.updateVisits(visits);
       console.log('Successfully submitted updates');
     } catch (error) {
@@ -145,5 +196,7 @@ export const useTransportData = () => {
     updateVisitPurpose,
     updateVisitPurposeOnMap,
     submitUpdates,
+    isSampleMode,
+    loadSampleData,
   };
 };
