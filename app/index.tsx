@@ -12,9 +12,17 @@ import React, { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { trajectories, transportModes, loading, error, refetch, loadSampleData } = useDataContext();
+  const { 
+    trajectories, 
+    transportModes, 
+    loading, 
+    error, 
+    refetch, 
+    loadSampleData,
+    apiBaseUrl,
+    updateApiBaseUrl 
+  } = useDataContext();
   const [showConfigModal, setShowConfigModal] = useState(false);
-  const [serverUrl, setServerUrl] = useState(ApiService.getBaseUrl());
 
   useEffect(() => {
     ApiService.healthCheck().then((isHealthy) => {
@@ -112,10 +120,10 @@ export default function HomeScreen() {
         <ConfigModal
           visible={showConfigModal}
           onClose={() => setShowConfigModal(false)}
-          currentUrl={serverUrl}
+          currentUrl={apiBaseUrl}
           onUrlChange={(newUrl) => {
-            setServerUrl(newUrl);
-            refetch(); // Refetch data with new URL
+            updateApiBaseUrl(newUrl);
+            // Data will be automatically refetched due to the useEffect in useTransportData
           }}
           onRetry={refetch}
           error={error}

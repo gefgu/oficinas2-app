@@ -36,10 +36,13 @@ export const useTransportData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSampleMode, setIsSampleMode] = useState(false);
+  const [apiBaseUrl, setApiBaseUrl] = useState<string>(
+    process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.83:8000"
+  );
 
   useEffect(() => {
     loadTrajectories();
-  }, []);
+  }, [apiBaseUrl]); // Reload when API URL changes
 
   // Update visit points when visits change
   useEffect(() => {
@@ -63,6 +66,10 @@ export const useTransportData = () => {
     try {
       setLoading(true);
       setError(null);
+      
+      // Update ApiService with current URL before fetching
+      ApiService.setBaseUrl(apiBaseUrl);
+      
       const data = await ApiService.fetchTrajectories();
       console.log('Fetched data:', data);
       setTrajectories(data.trajectories);
@@ -171,6 +178,9 @@ export const useTransportData = () => {
         return;
       }
       
+      // Ensure ApiService is using the current URL
+      ApiService.setBaseUrl(apiBaseUrl);
+      
       await ApiService.updateVisits(visits);
       console.log('Successfully submitted updates');
     } catch (error) {
@@ -181,6 +191,12 @@ export const useTransportData = () => {
 
   const refetch = () => {
     loadTrajectories();
+  };
+
+  const updateApiBaseUrl = (newUrl: string) => {
+    console.log('Updating API Base URL to:', newUrl);
+    setApiBaseUrl(newUrl);
+    // The useEffect will automatically trigger loadTrajectories when apiBaseUrl changes
   };
 
   return {
@@ -198,5 +214,7 @@ export const useTransportData = () => {
     submitUpdates,
     isSampleMode,
     loadSampleData,
+    apiBaseUrl,
+    updateApiBaseUrl,
   };
 };

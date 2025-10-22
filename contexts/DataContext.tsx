@@ -19,6 +19,8 @@ interface DataContextType {
   submitUpdates: () => Promise<void>;
   isSampleMode: boolean;
   loadSampleData: () => void;
+  apiBaseUrl: string;
+  updateApiBaseUrl: (newUrl: string) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);

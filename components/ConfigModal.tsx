@@ -1,13 +1,13 @@
 import { ApiService } from '@/utils/apiService';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -40,7 +40,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({
     setTestResult(null);
 
     try {
-      // Temporarily set the URL for testing
+      // Test the input URL without permanently changing it
       const originalUrl = ApiService.getBaseUrl();
       ApiService.setBaseUrl(inputUrl);
 
@@ -50,12 +50,14 @@ const ConfigModal: React.FC<ConfigModalProps> = ({
         setTestResult('✓ Connection successful!');
       } else {
         setTestResult('✗ Server unreachable');
-        ApiService.setBaseUrl(originalUrl); // Restore original URL
       }
+      
+      // Restore original URL after test
+      ApiService.setBaseUrl(originalUrl);
     } catch (err) {
       setTestResult('✗ Connection failed');
-      const originalUrl = currentUrl;
-      ApiService.setBaseUrl(originalUrl); // Restore original URL
+      // Restore original URL after test
+      ApiService.setBaseUrl(currentUrl);
     } finally {
       setIsTesting(false);
     }
@@ -72,9 +74,9 @@ const ConfigModal: React.FC<ConfigModalProps> = ({
       return;
     }
 
-    ApiService.setBaseUrl(inputUrl);
+    // Update via context - this will trigger data refetch automatically
     onUrlChange(inputUrl);
-    Alert.alert('Success', 'Server URL updated successfully');
+    Alert.alert('Success', 'Server URL updated successfully. Reloading data...');
     onClose();
   };
 
