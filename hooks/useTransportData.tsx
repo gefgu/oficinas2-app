@@ -199,6 +199,15 @@ export const useTransportData = () => {
     // The useEffect will automatically trigger loadTrajectories when apiBaseUrl changes
   };
 
+  const clearData = () => {
+    console.log('Clearing all data...');
+    setTrajectories([]);
+    setVisits([]);
+    setVisitPoints([]);
+    setError(null);
+    setIsSampleMode(false);
+  };
+
   return {
     trajectories,
     visits,
@@ -212,6 +221,7 @@ export const useTransportData = () => {
     updateVisitPurpose,
     updateVisitPurposeOnMap,
     submitUpdates,
+    clearData,
     isSampleMode,
     loadSampleData,
     apiBaseUrl,

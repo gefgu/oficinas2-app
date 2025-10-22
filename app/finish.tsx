@@ -1,10 +1,18 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useDataContext } from '@/contexts/DataContext';
 import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { Dimensions, Image, ImageBackground, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function FinishScreen() {
   const router = useRouter();
+  const { clearData } = useDataContext();
+
+  // Clear data when component mounts (after submission)
+  useEffect(() => {
+    clearData();
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
