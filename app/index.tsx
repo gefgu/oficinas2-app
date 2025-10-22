@@ -28,7 +28,7 @@ export default function HomeScreen() {
         console.log('Server is healthy.');
       }
     }).catch((error) => {
-      console.error('Health check error:', error);
+      // console.error('Health check error:', error);
       // Alert.alert(
       //   'Connection Error',
       //   'Unable to check server connection. Please check your network.',

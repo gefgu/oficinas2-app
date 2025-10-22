@@ -110,7 +110,7 @@ export class ApiService {
       };
       
     } catch (error) {
-      console.error('Failed to fetch trajectories:', error);
+      console.log('Failed to fetch trajectories:', error);
       throw error;
     }
   }
@@ -135,7 +135,7 @@ export class ApiService {
       console.log('Update response:', result);
       
     } catch (error) {
-      console.error('Failed to update visits:', error);
+      console.log('Failed to update visits:', error);
       throw error;
     }
   }
@@ -147,7 +147,7 @@ export class ApiService {
       }, 3000);
       return response.ok;
     } catch (error) {
-      console.error('Health check failed:', error);
+      console.log('Health check failed:', error);
       return false;
     }
   }
