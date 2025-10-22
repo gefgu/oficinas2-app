@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     textAlign: 'center',
     textTransform: 'capitalize',
+    lineHeight: responsiveFontSize * 1,
   },
   compassIcon: {
     width: responsiveFontSize * 0.9,
@@ -223,6 +224,7 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize * 0.75,
     fontFamily: 'Montserrat-Bold',
     textAlign: 'center',
+    lineHeight: responsiveFontSize * 1,
   },
   errorContainer: {
     backgroundColor: 'rgba(255, 0, 0, 0.1)',

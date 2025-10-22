@@ -4,11 +4,31 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useDataContext } from '@/contexts/DataContext';
 import { useRouter } from 'expo-router';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function PurposeMapScreen() {
   const router = useRouter();
-  const { visitPoints, purposeButtons, updateVisitPurposeOnMap, loading, error } = useDataContext();
+  const { visitPoints, purposeButtons, updateVisitPurposeOnMap, loading, error, submitUpdates } = useDataContext();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      await submitUpdates();
+      // Navigate to thank you page
+      router.push('/finish');
+    } catch (err) {
+      Alert.alert(
+        'Error',
+        'Failed to submit data. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Handle case when no data is available
   if (loading) {
@@ -62,10 +82,13 @@ export default function PurposeMapScreen() {
         onVisitPurposeChange={updateVisitPurposeOnMap}
       >
         <TouchableOpacity 
-          style={styles.button}
-          onPress={() => router.push('/finish')}
+          style={[styles.button, isSubmitting && styles.buttonDisabled]}
+          onPress={handleSubmit}
+          disabled={isSubmitting}
         >
-          <ThemedText style={styles.buttonText}>Continue</ThemedText>
+          <ThemedText style={styles.buttonText}>
+            {isSubmitting ? 'Submitting...' : 'Submit'}
+          </ThemedText>
         </TouchableOpacity>
       </PurposeMap>
     </View>
@@ -88,6 +111,10 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+    backgroundColor: '#666',
   },
   buttonText: {
     color: 'white',
