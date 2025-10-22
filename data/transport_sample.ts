@@ -1,30 +1,36 @@
-import { Trajectory, TransportModeButton } from "@/components/BaseMap";
+import { ModeButton, Trajectory } from "@/components/BaseMap";
 
 // Define the transport modes with icons
-  const transportModes: TransportModeButton[] = [
+  const transportModes: ModeButton[] = [
     {
       id: "mode-bus",
-      mode: "bus",
+      mode: "BUS",
       iconPath: require('../assets/icons/bus.png'),
       color: "#FF5733", // Orange
     },
     {
       id: "mode-car",
-      mode: "car",
+      mode: "CAR",
       iconPath: require('../assets/icons/car.png'),
       color: "#3498DB", // Blue
     },
     {
       id: "mode-bicycle",
-      mode: "bicycle",
+      mode: "BICYCLE",
       iconPath: require('../assets/icons/bicycle.png'),
       color: "#2ECC71", // Green
     },
     {
       id: "mode-walk",
-      mode: "walk",
+      mode: "WALK",
       iconPath: require('../assets/icons/walk.png'),
       color: "#9B59B6", // Purple
+    },
+    {
+      id: "mode-other",
+      mode: "OTHER",
+      iconPath: require('../assets/icons/other.png'),
+      color: "#95A5A6", // Gray
     },
   ];
 

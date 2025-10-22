@@ -93,6 +93,8 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+    width: '100%',
+    textAlign: 'center',
   },
   errorText: {
     color: 'red',

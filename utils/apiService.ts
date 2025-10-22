@@ -90,19 +90,22 @@ export class ApiService {
       // Convert server data to app format
       // Note: API uses trip_number in trajectory but visit_number in visits
       // trip_number corresponds to the destination visit (trip_number N = trajectory TO visit N)
-      const trajectories: Trajectory[] = data.trajectory.map((traj, index) => ({
-        id: `${traj.uid}-${traj.trip_number}`,
-        uid: traj.uid,
-        trip_number: traj.trip_number,
-        coordinates: traj.trajectory_points.map(point => ({
-          latitude: point.latitude,
-          longitude: point.longitude,
-        })),
-        color: this.getTrajectoryColor(index),
-        mode: data.visits.find(v => v.uid === traj.uid && v.visit_number === traj.trip_number)?.mode_of_transport || 'UNKNOWN',
-        startTime: traj.start_time,
-        endTime: traj.end_time,
-      }));
+      const trajectories: Trajectory[] = data.trajectory.map((traj, index) => {
+        const mode = data.visits.find(v => v.uid === traj.uid && v.visit_number === traj.trip_number)?.mode_of_transport || 'other';
+        return {
+          id: `${traj.uid}-${traj.trip_number}`,
+          uid: traj.uid,
+          trip_number: traj.trip_number,
+          coordinates: traj.trajectory_points.map(point => ({
+            latitude: point.latitude,
+            longitude: point.longitude,
+          })),
+          color: this.getTransportModeColor(mode),
+          mode: mode,
+          startTime: traj.start_time,
+          endTime: traj.end_time,
+        };
+      });
 
       return {
         visits: data.visits,
@@ -155,5 +158,16 @@ export class ApiService {
   private static getTrajectoryColor(index: number): string {
     const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
     return colors[index % colors.length];
+  }
+
+  private static getTransportModeColor(mode: string): string {
+    const transportColorMap: { [key: string]: string } = {
+      'bus': '#FF5733',
+      'car': '#3498DB',
+      'bicycle': '#2ECC71',
+      'walk': '#9B59B6',
+      'other': '#95A5A6',
+    };
+    return transportColorMap[mode?.toLowerCase()] || '#95A5A6';
   }
 }

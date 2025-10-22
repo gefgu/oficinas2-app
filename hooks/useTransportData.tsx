@@ -17,6 +17,17 @@ const getPurposeColor = (purpose: string): string => {
   return purposeColorMap[purpose] || '#607D8B';
 };
 
+const getTransportModeColor = (mode: string): string => {
+  const transportColorMap: { [key: string]: string } = {
+    'bus': '#FF5733',
+    'car': '#3498DB',
+    'bicycle': '#2ECC71',
+    'walk': '#9B59B6',
+    'other': '#95A5A6',
+  };
+  return transportColorMap[mode.toLowerCase()] || '#95A5A6';
+};
+
 export const useTransportData = () => {
   const [trajectories, setTrajectories] = useState<Trajectory[]>([]);
   const [visits, setVisits] = useState<VisitData[]>([]);
@@ -57,7 +68,7 @@ export const useTransportData = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
-      setTimeout(() =>  setLoading(false), 50000); // slight delay for better UX
+      setTimeout(() =>  setLoading(false), 500); // slight delay for better UX
       // setLoading(false);
     }
   };
