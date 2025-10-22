@@ -1,7 +1,7 @@
 import { Trajectory } from "@/components/BaseMap";
 
 // Get API URL from environment variable with fallback
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.83:8000";
+let API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.83:8000";
 const TIMEOUT_MS = 5000;
 
 // Log the API URL being used (helpful for debugging)
@@ -53,6 +53,16 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, timeout = TIME
 };
 
 export class ApiService {
+  static getBaseUrl(): string {
+    return API_BASE_URL;
+  }
+
+  static setBaseUrl(url: string): void {
+    // Remove trailing slash if present
+    API_BASE_URL = url.endsWith('/') ? url.slice(0, -1) : url;
+    console.log('API Base URL updated to:', API_BASE_URL);
+  }
+
   static async fetchTrajectories(): Promise<{ visits: VisitData[], trajectories: Trajectory[] }> {
     try {
       console.log('Fetching trajectories from API...');

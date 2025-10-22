@@ -1,17 +1,20 @@
 import { useRouter } from 'expo-router';
-import { Dimensions, Image, ImageBackground, SafeAreaView, StyleSheet, View } from 'react-native';
+import { Dimensions, Image, ImageBackground, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import CircularLoadingIndicator from '@/components/CircularLoadingIndicator';
+import ConfigModal from '@/components/ConfigModal';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useTransportData } from '@/hooks/useTransportData';
 import { ApiService } from '@/utils/apiService';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 
 export default function HomeScreen() {
   const router = useRouter();
   const { trajectories, transportModes, loading, error, refetch } = useTransportData();
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [serverUrl, setServerUrl] = useState(ApiService.getBaseUrl());
 
   useEffect(() => {
     ApiService.healthCheck().then((isHealthy) => {
@@ -56,6 +59,18 @@ export default function HomeScreen() {
         {/* Gray overlay */}
         <View style={styles.overlay} />
         
+        {/* Config Button */}
+        <TouchableOpacity 
+          style={styles.configButton}
+          onPress={() => setShowConfigModal(true)}
+        >
+          <Image 
+            source={require('../assets/icons/config.png')} 
+            style={styles.configIcon}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+
         <ThemedView style={styles.container}>
 
           {!loading && (
@@ -79,20 +94,6 @@ export default function HomeScreen() {
             </>
           )}  
 
-          
-
-          {/* Error Display */}
-          {/* {error && (
-            <ThemedView style={styles.errorContainer}>
-              <ThemedText style={styles.errorText}>
-                Failed to load data
-                
-              </ThemedText>
-              <TouchableOpacity onPress={refetch} style={styles.retryButton}>
-                <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
-              </TouchableOpacity>
-            </ThemedView>
-          )} */}
 
           {/* Loading Indicator */}
           {loading && (
@@ -104,29 +105,21 @@ export default function HomeScreen() {
             </ThemedView>
           )}
 
-          {/* Data Status */}
-          {/* {!loading && (
-            <ThemedText style={styles.statusText}>
-              {trajectories.length > 0 
-                ? `${trajectories.length} trajectories loaded`
-                : 'No trajectory data available'
-              }
-            </ThemedText>
-          )} */}
-
-          {/* Start Button */}
-          {/* <TouchableOpacity 
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleStartPress}
-            disabled={loading}
-          >
-            <ThemedText style={styles.buttonText}>
-              {loading ? 'Loading...' : 'Start'}
-            </ThemedText>
-          </TouchableOpacity> */}
-
 
         </ThemedView>
+
+        {/* Config Modal */}
+        <ConfigModal
+          visible={showConfigModal}
+          onClose={() => setShowConfigModal(false)}
+          currentUrl={serverUrl}
+          onUrlChange={(newUrl) => {
+            setServerUrl(newUrl);
+            refetch(); // Refetch data with new URL
+          }}
+          onRetry={refetch}
+          error={error}
+        />
       </ImageBackground>
     </SafeAreaView>
   );
@@ -145,6 +138,28 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  configButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  configIcon: {
+    width: responsiveFontSize * 0.9,
+    height: responsiveFontSize * 0.9,
+    // marginLeft: 10,
+    // marginBottom: 30,
+    color: "white",
+    // backgroundColor: "white"
   },
   container: {
     flex: 1,
