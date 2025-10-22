@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Alert, Dimensions, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, ImageBackground, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -50,57 +50,66 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title" style={styles.title} adjustsFontSizeToFit numberOfLines={1}>
-            NetMob
-          </ThemedText>
+      <ImageBackground 
+        source={require('../assets/images/background.png')}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      >
+        {/* Gray overlay */}
+        <View style={styles.overlay} />
+        
+        <ThemedView style={styles.container}>
+          <ThemedView style={styles.titleContainer}>
+            <ThemedText type="title" style={styles.title} adjustsFontSizeToFit numberOfLines={1}>
+              NetMob
+            </ThemedText>
+          </ThemedView>
+
+          {/* Error Display */}
+          {error && (
+            <ThemedView style={styles.errorContainer}>
+              <ThemedText style={styles.errorText}>
+                Failed to load data
+                {/* : {error} */}
+              </ThemedText>
+              <TouchableOpacity onPress={refetch} style={styles.retryButton}>
+                <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
+              </TouchableOpacity>
+            </ThemedView>
+          )}
+
+          {/* Loading Indicator */}
+          {loading && (
+            <ThemedView style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0a7ea4" />
+              <ThemedText style={styles.loadingText}>
+                Loading transportation data...
+              </ThemedText>
+            </ThemedView>
+          )}
+
+          {/* Data Status */}
+          {!loading && (
+            <ThemedText style={styles.statusText}>
+              {trajectories.length > 0 
+                ? `${trajectories.length} trajectories loaded`
+                : 'No trajectory data available'
+              }
+            </ThemedText>
+          )}
+
+          {/* Start Button */}
+          <TouchableOpacity 
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleStartPress}
+            disabled={loading}
+          >
+            <ThemedText style={styles.buttonText}>
+              {loading ? 'Loading...' : 'Start'}
+            </ThemedText>
+          </TouchableOpacity>
         </ThemedView>
-
-        {/* Error Display */}
-        {error && (
-          <ThemedView style={styles.errorContainer}>
-            <ThemedText style={styles.errorText}>
-              Failed to load data
-              {/* : {error} */}
-            </ThemedText>
-            <TouchableOpacity onPress={refetch} style={styles.retryButton}>
-              <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-        )}
-
-        {/* Loading Indicator */}
-        {loading && (
-          <ThemedView style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0a7ea4" />
-            <ThemedText style={styles.loadingText}>
-              Loading transportation data...
-            </ThemedText>
-          </ThemedView>
-        )}
-
-        {/* Data Status */}
-        {!loading && (
-          <ThemedText style={styles.statusText}>
-            {trajectories.length > 0 
-              ? `${trajectories.length} trajectories loaded`
-              : 'No trajectory data available'
-            }
-          </ThemedText>
-        )}
-
-        {/* Start Button */}
-        <TouchableOpacity 
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleStartPress}
-          disabled={loading}
-        >
-          <ThemedText style={styles.buttonText}>
-            {loading ? 'Loading...' : 'Start'}
-          </ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -110,17 +119,28 @@ const { width } = Dimensions.get('window');
 const responsiveFontSize = Math.min(38, width * 0.2);
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(128, 128, 128, 0.7)',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    backgroundColor: 'transparent',
   },
   titleContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
     minHeight: 60,
+    backgroundColor: 'transparent',
   },
   title: {
     fontSize: responsiveFontSize,
@@ -152,6 +172,7 @@ const styles = StyleSheet.create({
   loadingContainer: {
     alignItems: 'center',
     marginBottom: 20,
+    backgroundColor: 'transparent',
   },
   loadingText: {
     marginTop: 10,
