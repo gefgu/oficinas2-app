@@ -1,52 +1,50 @@
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Alert, Dimensions, Image, ImageBackground, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, ImageBackground, SafeAreaView, StyleSheet, View } from 'react-native';
 
+import CircularLoadingIndicator from '@/components/CircularLoadingIndicator';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useTransportData } from '@/hooks/useTransportData';
 import { ApiService } from '@/utils/apiService';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+
 
 export default function HomeScreen() {
   const router = useRouter();
   const { trajectories, transportModes, loading, error, refetch } = useTransportData();
 
-  const handleStartPress = () => {
-    if (trajectories.length === 0 && !loading) {
-      Alert.alert(
-        'No Data Available',
-        'No trajectory data could be loaded. Please check your connection and try again.',
-        [
-          { text: 'Retry', onPress: refetch },
-          { text: 'Continue Anyway', onPress: () => router.push('/transport_map') },
-          { text: 'Cancel', style: 'cancel' }
-        ]
-      );
-      return;
-    }
-
-    // Navigate to transport map with the loaded data
-    router.push('/transport_map');
-  };
-
   useEffect(() => {
     ApiService.healthCheck().then((isHealthy) => {
       if (!isHealthy) {
-        Alert.alert(
-          'Server Unreachable',
-          'The backend server is not reachable. Please ensure the server is running and try again.',
-          [{ text: 'OK' }]
-        );
+        // Alert.alert(
+        //   'Server Unreachable',
+        //   'The backend server is not reachable. Please ensure the server is running and try again.',
+        //   [{ text: 'OK' }]
+        // );
+      } else {
+        console.log('Server is healthy.');
       }
     }).catch((error) => {
       console.error('Health check error:', error);
-      Alert.alert(
-        'Connection Error',
-        'Unable to check server connection. Please check your network.',
-        [{ text: 'OK' }]
-      );
+      // Alert.alert(
+      //   'Connection Error',
+      //   'Unable to check server connection. Please check your network.',
+      //   [{ text: 'OK' }]
+      // );
     });
   }, []);
+
+  // Auto-navigate when data is loaded
+  useEffect(() => {
+    if (!loading && trajectories.length > 0) {
+      // Small delay to show the loaded state briefly
+      const timer = setTimeout(() => {
+        router.push('/transport_map');
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading, trajectories.length, router]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -59,52 +57,65 @@ export default function HomeScreen() {
         <View style={styles.overlay} />
         
         <ThemedView style={styles.container}>
-          <ThemedView style={styles.titleContainer}>
-            <ThemedText type="title" style={styles.title} adjustsFontSizeToFit numberOfLines={1}>
-              NETMOB
-            </ThemedText>
-            <Image 
-              source={require('../assets/icons/compass.png')} 
-              style={styles.compassIcon}
-              resizeMode="contain"
-            />
-          </ThemedView>
+
+          {!loading && (
+            <>
+              <ThemedView style={styles.titleContainer}>
+                <ThemedText type="title" style={styles.title} adjustsFontSizeToFit numberOfLines={1}>
+                  NETMOB
+                </ThemedText>
+                <Image 
+                  source={require('../assets/icons/compass.png')} 
+                  style={styles.compassIcon}
+                  resizeMode="contain"
+                />
+              </ThemedView>
+
+              <ThemedView style={styles.titleContainer}>
+                  <ThemedText style={styles.subtitleText}>
+                      Bem-Vindo!
+                </ThemedText>
+              </ThemedView>
+            </>
+          )}  
+
+          
 
           {/* Error Display */}
-          {error && (
+          {/* {error && (
             <ThemedView style={styles.errorContainer}>
               <ThemedText style={styles.errorText}>
                 Failed to load data
-                {/* : {error} */}
+                
               </ThemedText>
               <TouchableOpacity onPress={refetch} style={styles.retryButton}>
                 <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
               </TouchableOpacity>
             </ThemedView>
-          )}
+          )} */}
 
           {/* Loading Indicator */}
           {loading && (
             <ThemedView style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#0a7ea4" />
+              <CircularLoadingIndicator />
               <ThemedText style={styles.loadingText}>
-                Loading transportation data...
+                NETMOB
               </ThemedText>
             </ThemedView>
           )}
 
           {/* Data Status */}
-          {!loading && (
+          {/* {!loading && (
             <ThemedText style={styles.statusText}>
               {trajectories.length > 0 
                 ? `${trajectories.length} trajectories loaded`
                 : 'No trajectory data available'
               }
             </ThemedText>
-          )}
+          )} */}
 
           {/* Start Button */}
-          <TouchableOpacity 
+          {/* <TouchableOpacity 
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleStartPress}
             disabled={loading}
@@ -112,7 +123,9 @@ export default function HomeScreen() {
             <ThemedText style={styles.buttonText}>
               {loading ? 'Loading...' : 'Start'}
             </ThemedText>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+
+
         </ThemedView>
       </ImageBackground>
     </SafeAreaView>
@@ -121,7 +134,7 @@ export default function HomeScreen() {
 
 // More precise responsive sizing
 const { width } = Dimensions.get('window');
-const responsiveFontSize = Math.min(38, width * 0.2);
+const responsiveFontSize = Math.min(48, width * 0.2);
 
 const styles = StyleSheet.create({
   backgroundImage: {
@@ -189,10 +202,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: 'transparent',
   },
+
   loadingText: {
-    marginTop: 10,
-    fontSize: 14,
-    fontFamily: 'Montserrat-Regular',
+    marginTop: 20,
+    fontSize: responsiveFontSize * 0.75,
+    fontFamily: 'Montserrat-Bold',
     textAlign: 'center',
   },
   errorContainer: {
@@ -227,5 +241,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     opacity: 0.7,
+  },
+  subtitleText: {
+    fontSize: responsiveFontSize * 0.5,
+    fontFamily: 'Montserrat-Medium',
+    marginBottom: 20,
+    textAlign: 'center',
   },
 });

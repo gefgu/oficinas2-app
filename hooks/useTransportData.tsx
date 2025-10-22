@@ -57,7 +57,8 @@ export const useTransportData = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
-      setLoading(false);
+      setTimeout(() =>  setLoading(false), 50000); // slight delay for better UX
+      // setLoading(false);
     }
   };
 
