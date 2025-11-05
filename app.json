@@ -4,7 +4,7 @@
     "slug": "netmob",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/app_icon.png",
     "scheme": "netmob",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -62,7 +62,8 @@
       "router": {},
       "eas": {
         "projectId": "7c1f0ccd-9a99-46c7-8277-9144e246d42d"
-      }
+      },
+      "apiBaseUrl": "http://192.168.1.83:8000"
     }
   }
 }

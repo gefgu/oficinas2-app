@@ -4,6 +4,7 @@ import { VisitPoint } from '@/components/PurposeMap';
 import { purposeButtons } from '@/data/purpose_sample';
 import { transportModes } from '@/data/transport_sample';
 import { ApiService, VisitData } from '@/utils/apiService';
+import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
 
 
@@ -37,7 +38,9 @@ export const useTransportData = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSampleMode, setIsSampleMode] = useState(false);
   const [apiBaseUrl, setApiBaseUrl] = useState<string>(
-    process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.83:8000"
+    Constants.expoConfig?.extra?.apiBaseUrl 
+      || process.env.EXPO_PUBLIC_API_BASE_URL 
+      || "http://192.168.1.83:8000"
   );
 
   useEffect(() => {
@@ -70,7 +73,7 @@ export const useTransportData = () => {
       // Update ApiService with current URL before fetching
       ApiService.setBaseUrl(apiBaseUrl);
       
-      const data = await ApiService.fetchTrajectories();
+      const data = await ApiService.fetchTrajectories(apiBaseUrl);
       console.log('Fetched data:', data);
       setTrajectories(data.trajectories);
       setVisits(data.visits);

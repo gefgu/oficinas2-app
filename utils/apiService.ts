@@ -1,11 +1,16 @@
 import { Trajectory } from "@/components/BaseMap";
+import Constants from 'expo-constants';
 
-// Get API URL from environment variable with fallback
-let API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.83:8000";
+// Get API URL from app.json extra field with fallback to environment variable
+let API_BASE_URL = Constants.expoConfig?.extra?.apiBaseUrl 
+  || process.env.EXPO_PUBLIC_API_BASE_URL 
+  || "http://192.168.1.83:8000";
 const TIMEOUT_MS = 5000;
 
 // Log the API URL being used (helpful for debugging)
 console.log('API Base URL:', API_BASE_URL);
+console.log('From Constants.expoConfig.extra:', Constants.expoConfig?.extra?.apiBaseUrl);
+console.log('From process.env:', process.env.EXPO_PUBLIC_API_BASE_URL);
 
 export interface ApiTrajectoryResponse {
   visits: VisitData[];
@@ -63,14 +68,14 @@ export class ApiService {
     console.log('API Base URL updated to:', API_BASE_URL);
   }
 
-  static async fetchTrajectories(): Promise<{ visits: VisitData[], trajectories: Trajectory[] }> {
+  static async fetchTrajectories(api_url: string | undefined): Promise<{ visits: VisitData[], trajectories: Trajectory[] }> {
     try {
       console.log('Fetching trajectories from API...');
-      console.log('API URL:', `${API_BASE_URL}/trajectories/`);
+      console.log('API URL:', `${api_url || API_BASE_URL}/trajectories/`);
 
       const startTime = Date.now();
-      
-      const response = await fetchWithTimeout(`${API_BASE_URL}/trajectories/`, { 
+
+      const response = await fetchWithTimeout(`${api_url || API_BASE_URL}/trajectories/`, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
