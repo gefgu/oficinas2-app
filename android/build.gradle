@@ -31,7 +31,6 @@ allprojects {
     mavenCentral()
     maven { url 'https://www.jitpack.io' }
   }
-
 }
 
 apply plugin: "expo-root-project"

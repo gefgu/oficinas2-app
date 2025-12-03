@@ -154,8 +154,13 @@ export class ApiService {
         method: "GET" 
       }, 3000);
       return response.ok;
-    } catch (error) {
-      console.log('Health check failed:', error);
+    } catch (error: any) {
+      console.log('Health check failed:', {
+        error: error,
+        message: error?.message,
+        stack: error?.stack,
+        url: `${API_BASE_URL}/`
+      });
       return false;
     }
   }
